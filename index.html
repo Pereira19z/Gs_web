@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento da Qualidade da Água</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: calc(100% - 12px);
+            padding: 6px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <H1>💧</span>AquaGuard<span class="emoji">💧</span></H1>
+        <h2>Monitoramento da Qualidade da Água</h2>
+        
+        
+        <div class="form-group">
+            <label for="corpoHidrico">Corpo Hídrico:</label>
+            <select id="corpoHidrico">
+                <option value="rios">Rios</option>
+                <option value="oceanos">Oceanos</option>
+                <option value="represas">Represas</option>
+                <option value="mares">Mares</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+        </div>
+
+        <div class="form-group">
+            <label for="localizacao">Localização:</label>
+            <input type="text" id="localizacao" name="localizacao" required>
+        </div>
+
+        <div class="form-group">
+            <label for="ph">pH:</label>
+            <input type="number" id="ph" name="ph" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="turbidez">Turbidez:</label>
+            <input type="number" id="turbidez" name="turbidez" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="oxigenio">Oxigênio Dissolvido:</label>
+            <input type="number" id="oxigenio" name="oxigenio" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="nitratos">Nitratos:</label>
+            <input type="number" id="nitratos" name="nitratos" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fosfatos">Fosfatos:</label>
+            <input type="number" id="fosfatos" name="fosfatos" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="coliformes">Coliformes Totais:</label>
+            <input type="number" id="coliformes" name="coliformes" required>
+        </div>
+
+        <div class="form-group">
+            <label for="dataMedicao">Data da Medição:</label>
+            <input type="date" id="dataMedicao" name="dataMedicao" required>
+        </div>
+
+        <button onclick="enviarDados()">Enviar</button>
+
+        <h2>Relatórios</h2>
+        <table id="relatorio">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>pH</th>
+                    <th>Turbidez</th>
+                    <th>Oxigênio Dissolvido</th>
+                    <th>Nitratos</th>
+                    <th>Fosfatos</th>
+                    <th>Coliformes Totais</th>
+                    <th>Data da Medição</th>
+                </tr>
+            </thead>
+            <tbody id="corpoHidricoData">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function enviarDados() {
+            const corpoHidrico = document.getElementById('corpoHidrico').value;
+            const nome = document.getElementById('nome').value;
+            const localizacao = document.getElementById('localizacao').value;
+            const pH = parseFloat(document.getElementById('ph').value);
+            const turbidez = parseFloat(document.getElementById('turbidez').value);
+            const oxigenio = parseFloat(document.getElementById('oxigenio').value);
+            const nitratos = parseFloat(document.getElementById('nitratos').value);
+            const fosfatos = parseFloat(document.getElementById('fosfatos').value);
+            const coliformes = parseInt(document.getElementById('coliformes').value);
+            const dataMedicao = document.getElementById('dataMedicao').value;
+
+            const data = {
+                corpoHidrico: corpoHidrico,
+                nome: nome,
+                localizacao: localizacao,
+                ph: pH,
+                turbidez: turbidez,
+                oxigenio: oxigenio,
+                nitratos: nitratos,
+                fosfatos: fosfatos,
+                coliformes: coliformes,
+                dataMedicao: dataMedicao
+            };
+
+            fetch('/api/salvarDados', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                exibirRelatorios(corpoHidrico);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function exibirRelatorios(tipo) {
+            fetch(`/api/relatorios/${tipo}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Relatórios:', data);
+                const corpoHidricoData = document.getElementById('corpoHidricoData');
+                corpoHidricoData.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.nome}</td>
+                        <td>${item.ph}</td>
+                        <td>${item.turbidez}</td>
+                        <td>${item.oxigenio}</td>
+                        <td>${item.nitratos}</td>
+                        <td>${item.fosfatos}</td>
+                        <td>${item.coliformes}</td>
+                        <td>${item.dataMedicao}</td>
+                    `;
+                    corpoHidricoData.appendChild(row);
+                });
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Carregar relatórios iniciais ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            exibirRelatorios('rios'); // Exemplo com rios, pode mudar conforme a seleção do usuário
+        });
+    </script>
+</body>
+</html>
