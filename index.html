@@ -25,7 +25,7 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        input[type="text"], input[type="number"], input[type="date"] {
+        input[type="text"], input[type="number"], input[type="date"], select {
             width: calc(100% - 12px);
             padding: 6px;
             margin-top: 5px;
@@ -64,8 +64,6 @@
     <div class="container">
         <H1>💧</span>AquaGuard<span class="emoji">💧</span></H1>
         <h2>Monitoramento da Qualidade da Água</h2>
-        
-        
         <div class="form-group">
             <label for="corpoHidrico">Corpo Hídrico:</label>
             <select id="corpoHidrico">
@@ -123,100 +121,44 @@
 
         <button onclick="enviarDados()">Enviar</button>
 
-        <h2>Relatórios</h2>
-        <table id="relatorio">
-            <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>pH</th>
-                    <th>Turbidez</th>
-                    <th>Oxigênio Dissolvido</th>
-                    <th>Nitratos</th>
-                    <th>Fosfatos</th>
-                    <th>Coliformes Totais</th>
-                    <th>Data da Medição</th>
-                </tr>
-            </thead>
-            <tbody id="corpoHidricoData">
-            </tbody>
-        </table>
-    </div>
+        <script>
+            function enviarDados() {
+                const corpoHidrico = document.getElementById('corpoHidrico').value;
+                const nome = document.getElementById('nome').value;
+                const localizacao = document.getElementById('localizacao').value;
+                const pH = parseFloat(document.getElementById('ph').value);
+                const turbidez = parseFloat(document.getElementById('turbidez').value);
+                const oxigenio = parseFloat(document.getElementById('oxigenio').value);
+                const nitratos = parseFloat(document.getElementById('nitratos').value);
+                const fosfatos = parseFloat(document.getElementById('fosfatos').value);
+                const coliformes = parseInt(document.getElementById('coliformes').value);
+                const dataMedicao = document.getElementById('dataMedicao').value;
 
-    <script>
-        function enviarDados() {
-            const corpoHidrico = document.getElementById('corpoHidrico').value;
-            const nome = document.getElementById('nome').value;
-            const localizacao = document.getElementById('localizacao').value;
-            const pH = parseFloat(document.getElementById('ph').value);
-            const turbidez = parseFloat(document.getElementById('turbidez').value);
-            const oxigenio = parseFloat(document.getElementById('oxigenio').value);
-            const nitratos = parseFloat(document.getElementById('nitratos').value);
-            const fosfatos = parseFloat(document.getElementById('fosfatos').value);
-            const coliformes = parseInt(document.getElementById('coliformes').value);
-            const dataMedicao = document.getElementById('dataMedicao').value;
+                const data = {
+                    nome: nome,
+                    localizacao: localizacao,
+                    ph: pH,
+                    turbidez: turbidez,
+                    oxigenio: oxigenio,
+                    nitratos: nitratos,
+                    fosfatos: fosfatos,
+                    coliformes: coliformes,
+                    dataMedicao: dataMedicao,
+                    corpoHidrico: corpoHidrico
+                };
 
-            const data = {
-                corpoHidrico: corpoHidrico,
-                nome: nome,
-                localizacao: localizacao,
-                ph: pH,
-                turbidez: turbidez,
-                oxigenio: oxigenio,
-                nitratos: nitratos,
-                fosfatos: fosfatos,
-                coliformes: coliformes,
-                dataMedicao: dataMedicao
-            };
-
-            fetch('/api/salvarDados', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                exibirRelatorios(corpoHidrico);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        }
-
-        function exibirRelatorios(tipo) {
-            fetch(`/api/relatorios/${tipo}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Relatórios:', data);
-                const corpoHidricoData = document.getElementById('corpoHidricoData');
-                corpoHidricoData.innerHTML = '';
-
-                data.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.nome}</td>
-                        <td>${item.ph}</td>
-                        <td>${item.turbidez}</td>
-                        <td>${item.oxigenio}</td>
-                        <td>${item.nitratos}</td>
-                        <td>${item.fosfatos}</td>
-                        <td>${item.coliformes}</td>
-                        <td>${item.dataMedicao}</td>
-                    `;
-                    corpoHidricoData.appendChild(row);
+                fetch('/api/salvarDados', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .catch((Success) => {
+                    console.error('Success:', data);
+                    alert('Formulário enviado com sucesso!');
                 });
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        }
-
-        // Carregar relatórios iniciais ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            exibirRelatorios('rios'); // Exemplo com rios, pode mudar conforme a seleção do usuário
-        });
-    </script>
+            }
+        </script>
 </body>
 </html>
